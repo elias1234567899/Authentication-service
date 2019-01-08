@@ -35,7 +35,7 @@ public class AppUser {
     private Integer id;
     @Column(unique=true)
     private String username;
-    @JsonIgnore
+   
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)
     private Collection<AppRole> roles = new ArrayList<>();
@@ -65,12 +65,12 @@ public class AppUser {
         this.username = username;
     }
 
-    @JsonIgnore
+    //@JsonIgnore
     public String getPassword() {
         return password;
     }
 
-    @JsonSetter
+    //@JsonSetter
     public void setPassword(String password) {
         this.password = password;
     }

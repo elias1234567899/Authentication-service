@@ -43,6 +43,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        System.out.println("****************");
+        System.out.println("username : "+appUser.getUsername());
+        System.out.println("pass : "+appUser.getPassword());
         return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(appUser.getUsername(), appUser.getPassword()));
     }
 
@@ -52,7 +55,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String jwtToken=Jwts.builder()
                 .setSubject(springUser.getUsername())
                 .setExpiration(new Date(System.currentTimeMillis()+SecurityConstant.EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, SecurityConstant.SECRECT)
+                .signWith(SignatureAlgorithm.HS256, SecurityConstant.SECRECT)
                 .claim("roles", springUser.getAuthorities())
                 .compact();
         response.addHeader(SecurityConstant.HEADER_STRING, SecurityConstant.TOKEN_PREFIX+jwtToken);

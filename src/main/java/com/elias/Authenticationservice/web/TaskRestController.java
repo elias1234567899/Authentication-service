@@ -11,6 +11,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -29,8 +30,9 @@ public class TaskRestController {
      }
      
      @PostMapping("/tasks")
-     public Task save(Task t){
-         return taskRepository.save(t);
+     public Task save(@RequestBody Task t){
+         taskRepository.save(t);
+         return t;
      }
      
 }
