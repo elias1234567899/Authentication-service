@@ -6,8 +6,11 @@
 package com.elias.Authenticationservice.web;
 
 import com.elias.Authenticationservice.model.AppUser;
+import com.elias.Authenticationservice.model.Task;
 import com.elias.Authenticationservice.service.AccountService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,18 +27,7 @@ public class AccountRestConroller {
 
     @PostMapping("/register")
     public AppUser register(@RequestBody RegisterForm userForm) {
-        if (!userForm.getPassword().equals(userForm.getRepassword())) {
-            throw new RuntimeException("You must confirm you password");
-        }
-        AppUser user = accountService.findUserByUsername(userForm.getUsername());
-        if (user != null) {
-            throw new RuntimeException("This Username is already exists");
-        }
-        AppUser appUser = new AppUser();
-        appUser.setUsername(userForm.getUsername());
-        appUser.setPassword(userForm.getPassword());
-        accountService.saveUser(appUser);
-        accountService.addRoleToUser(userForm.getUsername(), "USER");
-        return appUser;
+        return accountService.saveUser(
+                userForm.getUsername(), userForm.getPassword(), userForm.getRepassword());
     }
 }

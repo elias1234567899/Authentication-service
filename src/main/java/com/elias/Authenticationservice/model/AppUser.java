@@ -6,6 +6,7 @@
 package com.elias.Authenticationservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,14 +36,16 @@ public class AppUser {
     private Integer id;
     @Column(unique=true)
     private String username;
-   
+    private boolean actived;
+    @JsonProperty(access=JsonProperty.Access.WRITE_ONLY)
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)
     private Collection<AppRole> roles = new ArrayList<>();
 
-    public AppUser(Integer id, String username, String password) {
+    public AppUser(Integer id, String username, boolean actived, String password) {
         this.id = id;
         this.username = username;
+        this.actived = actived;
         this.password = password;
     }
 
@@ -63,6 +66,14 @@ public class AppUser {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public boolean isActived() {
+        return actived;
+    }
+
+    public void setActived(boolean actived) {
+        this.actived = actived;
     }
 
     //@JsonIgnore

@@ -7,6 +7,7 @@ package com.elias.Authenticationservice.service;
 
 import com.elias.Authenticationservice.model.AppRole;
 import com.elias.Authenticationservice.model.AppUser;
+import java.util.List;
 
 /**
  *
@@ -14,9 +15,10 @@ import com.elias.Authenticationservice.model.AppUser;
  */
 public interface AccountService {
     
-    public AppUser saveUser(AppUser user);
+//    public AppUser saveUser(AppUser user);
+    public AppUser saveUser(String username,String password,String confirmedPassword);
     public AppRole saveRole(AppRole role);
     public void addRoleToUser(String username,String roleName);
-    public AppUser findUserByUsername(String username);
+    public AppUser loadUserByUsername(String username);
     
 }

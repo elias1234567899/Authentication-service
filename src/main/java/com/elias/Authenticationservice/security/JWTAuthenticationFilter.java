@@ -5,12 +5,14 @@
  */
 package com.elias.Authenticationservice.security;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.elias.Authenticationservice.model.AppUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -51,14 +53,28 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+       
         User springUser= (User) authResult.getPrincipal();
-        String jwtToken=Jwts.builder()
-                .setSubject(springUser.getUsername())
-                .setExpiration(new Date(System.currentTimeMillis()+SecurityConstant.EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SecurityConstant.SECRECT)
-                .claim("roles", springUser.getAuthorities())
-                .compact();
-        response.addHeader(SecurityConstant.HEADER_STRING, SecurityConstant.TOKEN_PREFIX+jwtToken);
+        
+        List<String> roles= new ArrayList<>();
+        springUser.getAuthorities().forEach(a->{
+          roles.add(a.getAuthority());
+        });
+        
+        String jwtToken=JWT.create()
+                .withIssuer(request.getRequestURI())
+                .withSubject(springUser.getUsername())
+                .withArrayClaim("roles", roles.toArray(new String[roles.size()]))
+                .withExpiresAt(new Date(System.currentTimeMillis()+10*24*3600))
+                .sign(Algorithm.HMAC256(SecurityParams.PRIVATE_SECRET));
+        
+//        String jwtToken=Jwts.builder()
+//                .setSubject(springUser.getUsername())
+//                .setExpiration(new Date(System.currentTimeMillis()+SecurityParams.EXPIRATION_TIME))
+//                .signWith(SignatureAlgorithm.HS256, SecurityParams.PRIVATE_SECRET)
+//                .claim("roles", springUser.getAuthorities())
+//                .compact();
+        response.addHeader(SecurityParams.JWT_HEADER, SecurityParams.TOKEN_PREFIX+jwtToken);
     }
     
     

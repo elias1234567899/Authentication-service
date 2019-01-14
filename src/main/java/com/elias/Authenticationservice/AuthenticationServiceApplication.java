@@ -28,21 +28,21 @@ public class AuthenticationServiceApplication implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws Exception {
-        taskRepository.deleteAll();
+//        taskRepository.deleteAll();
 //        accountService.saveUser(new AppUser(null,"admin","1234",null));
 //        accountService.saveUser(new AppUser(null,"user","1234",null));
 //        accountService.saveRole(new AppRole(null,"Admin"));
 //        accountService.saveRole(new AppRole(null,"USER"));
 //        accountService.addRoleToUser("admin", "ADMIN");
 //        accountService.addRoleToUser("user", "USER");
+//        accountService.saveRole(new AppRole(null, "USER"));
+//        accountService.saveRole(new AppRole(null, "ADMIN"));
+//        Stream.of("user1","user2","user3","admin").forEach(u->{
+//            accountService.saveUser(u,"1234","1234");
+//        });
+//        
+//        accountService.addRoleToUser("admin", "ADMIN");
         
-        Stream.of("T1","T2","T3").forEach(t->{
-            taskRepository.save(new Task(null,t));
-        });
-        
-       taskRepository.findAll().forEach(t->{
-           System.out.println(t.getTaskName());
-       });
     }
 
     

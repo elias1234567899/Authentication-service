@@ -5,11 +5,14 @@
  */
 package com.elias.Authenticationservice.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -34,28 +37,36 @@ public class JWTauthorizationFilter extends OncePerRequestFilter {
         response.addHeader("Access-Control-Allow-Headers", "Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,"
                 + "Access-Control-Request-Headers,authorization");
         response.addHeader("Access-Control-Expose-Headers", "Access-Control-Allow-Origin,Access-Control-Allow-Credentials,authorization");
+        response.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELET,PATCH");
         if (request.getMethod().equals("OPTIONS")) {
             response.setStatus(HttpServletResponse.SC_OK);
-        } else {
-            String jwtToken = request.getHeader(SecurityConstant.HEADER_STRING);
-            System.out.println(jwtToken);
-            if (jwtToken == null || !jwtToken.startsWith(SecurityConstant.TOKEN_PREFIX)) {
+        } //        else if(request.getRequestURL().equals("/login")){
+        //            chain.doFilter(request, response);
+        //            return;
+        //        }
+        else {
+            String jwtToken = request.getHeader(SecurityParams.JWT_HEADER);
+            //System.out.println(jwtToken);
+            if (jwtToken == null || !jwtToken.startsWith(SecurityParams.TOKEN_PREFIX)) {
                 chain.doFilter(request, response);
                 return;
             }
-            Claims claims = Jwts.parser()
-                    .setSigningKey(SecurityConstant.SECRECT)
-                    .parseClaimsJws(jwtToken.replace(SecurityConstant.TOKEN_PREFIX, ""))
-                    .getBody();
-            String username = claims.getSubject();
-            ArrayList<Map<String, String>> roles = (ArrayList<Map<String, String>>) claims.get("roles");
-            Collection<GrantedAuthority> authorities = new ArrayList<>();
-            roles.forEach(r -> {
-                authorities.add(new SimpleGrantedAuthority(r.get("authority")));
-            });
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(SecurityParams.PRIVATE_SECRET)).build();
+//            DecodedJWT decodedJWT = JWT.decode(jwtToken.substring(SecurityParams.TOKEN_PREFIX.length()));
+            DecodedJWT decodedJWT = verifier.verify(jwtToken.substring(SecurityParams.TOKEN_PREFIX.length()));
+            String username = decodedJWT.getSubject();
+            List<String> roles = decodedJWT.getClaims().get("roles").asList(String.class);
+            System.out.println("roles = " + roles);
+            Collection<GrantedAuthority> authoritys = new ArrayList<GrantedAuthority>();
+            for (String r : roles) {
+                authoritys.add(new SimpleGrantedAuthority(r));
+            }
+            UsernamePasswordAuthenticationToken token
+                    = new UsernamePasswordAuthenticationToken(username, null, authoritys);
+            SecurityContextHolder.getContext().setAuthentication(token);
             chain.doFilter(request, response);
+
         }
     }
 
